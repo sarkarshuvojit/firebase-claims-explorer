@@ -5,9 +5,11 @@ import (
 	"fmt"
 	"os"
 	"strings"
+
+	"shuvojit.in/firebase-claims-exporer/auth"
 )
 
-func main() {
+func getConfigFilePath() string {
 	configFilePtr := flag.String("config", "default", "path to your firebase config")
 
 	flag.Parse()
@@ -21,4 +23,12 @@ func main() {
 		fmt.Println("Please specify valid config file")
 		os.Exit(1)
 	}
+
+	return *configFilePtr
+}
+
+func main() {
+	abspath := getConfigFilePath()
+	client := auth.GetAuthClient(abspath)
+	fmt.Printf("Client: %v\n", client)
 }
