@@ -19,3 +19,8 @@ There should be a search box where user may input part of a name or uid to quick
 ## Features to implement
 
 - Cache user database locally for quick searching 
+
+## Resources/Notes
+
+- (bubbleboxer)[https://github.com/treilik/bubbleboxer]: Can be used to create layout using bubbletea
+
