@@ -1,11 +1,14 @@
 package main
 
 import (
+	"context"
 	"flag"
 	"fmt"
 	"os"
 	"strings"
 
+	fb "firebase.google.com/go/v4/auth"
+	"google.golang.org/api/iterator"
 	"shuvojit.in/firebase-claims-exporer/auth"
 )
 
@@ -27,8 +30,41 @@ func getConfigFilePath() string {
 	return *configFilePtr
 }
 
-func main() {
+func listScreen(client *fb.Client) error {
+	iter := client.Users(context.Background(), "")
+	idx := 0
+	for {
+		user, err := iter.Next()
+
+		if err == iterator.Done {
+			break
+		}
+
+		if err != nil {
+			return err
+		}
+
+		fmt.Printf("%d, %s", idx, user.Email)
+		idx++
+	}
+	return nil
+}
+
+func start() error {
 	abspath := getConfigFilePath()
 	client := auth.GetAuthClient(abspath)
-	fmt.Printf("Client: %v\n", client)
+	err := listScreen(client)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func main() {
+	err := start()
+	if err != nil {
+		panic("Oops, something broke")
+	}
 }
