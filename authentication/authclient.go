@@ -1,11 +1,11 @@
-package auth
+package authentication
 
 import (
 	"context"
 	"log"
 
 	firebase "firebase.google.com/go/v4"
-	auth "firebase.google.com/go/v4/auth"
+	"firebase.google.com/go/v4/auth"
 	"google.golang.org/api/option"
 )
 
