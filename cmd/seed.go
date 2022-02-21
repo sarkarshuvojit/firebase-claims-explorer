@@ -10,12 +10,11 @@ import (
 
 	"firebase.google.com/go/v4/auth"
 	"github.com/spf13/cobra"
-	"shuvojit.in/firebase-claims-exporer/authentication"
+	"shuvojit.in/firebase-claims-explorer/authentication"
 )
 
 var seedCount int
 
-// seedCmd represents the seed command
 var seedCmd = &cobra.Command{
 	Use:   "seed",
 	Short: "Used to seed firebase with random users.",

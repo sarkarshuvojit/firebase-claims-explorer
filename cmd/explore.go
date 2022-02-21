@@ -1,10 +1,9 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
-package cmd
+*/package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 
@@ -13,7 +12,6 @@ import (
 	"shuvojit.in/firebase-claims-explorer/authentication"
 )
 
-// exploreCmd represents the explore command
 var exploreCmd = &cobra.Command{
 	Use:   "explore",
 	Short: "Runs tui app to list users and view claims",
@@ -36,4 +34,35 @@ func init() {
 
 func launchTui(client *auth.Client) {
 	fmt.Printf("TUI needs to be invoked here\n")
+	users, err := authentication.GetAllUsers(client)
+
+	if err != nil {
+		panic(err)
+	}
+
+	b, err := json.Marshal(users)
+	fmt.Println(string(b))
+}
+
+type exploreModel struct {
+	users        []authentication.User
+	selectedUser authentication.User
+
+	searchQuery     string
+	filteredResults []authentication.User
+}
+
+func createExploreModel(client *auth.Client) exploreModel {
+	users, err := authentication.GetAllUsers(client)
+	if err != nil {
+		panic(err)
+	}
+
+	return exploreModel{
+		users:        users,
+		selectedUser: authentication.User{},
+
+		searchQuery:     "",
+		filteredResults: []authentication.User{},
+	}
 }

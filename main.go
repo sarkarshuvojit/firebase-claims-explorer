@@ -1,10 +1,6 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package main
 
-import "shuvojit.in/firebase-claims-exporer/cmd"
+import "shuvojit.in/firebase-claims-explorer/cmd"
 
 func main() {
 	cmd.Execute()
