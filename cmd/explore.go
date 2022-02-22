@@ -1,12 +1,13 @@
 package cmd
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 
 	"firebase.google.com/go/v4/auth"
 	tea "github.com/charmbracelet/bubbletea"
+	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"shuvojit.in/firebase-claims-explorer/authentication"
 )
@@ -34,21 +35,25 @@ func init() {
 }
 
 func launchTui(client *auth.Client) {
-	fmt.Printf("TUI needs to be invoked here\n")
 	users, err := authentication.GetAllUsers(client)
 
 	if err != nil {
 		panic(err)
 	}
 
-	b, err := json.Marshal(users)
-	fmt.Println(string(b))
+	clearScreen()
 
-	p := tea.NewProgram(createExploreModel())
+	p := tea.NewProgram(createExploreModel(users))
 	if err := p.Start(); err != nil {
 		fmt.Printf("Some error occored. %v", err)
 		os.Exit(1)
 	}
+}
+
+func clearScreen() {
+	clearcmd := exec.Command("clear")
+	clearcmd.Stdout = os.Stdout
+	clearcmd.Run()
 }
 
 type exploreModel struct {
@@ -59,11 +64,7 @@ type exploreModel struct {
 	filteredResults []authentication.User
 }
 
-func createExploreModel() exploreModel {
-	users, err := authentication.GetAllUsers(globalClient)
-	if err != nil {
-		panic(err)
-	}
+func createExploreModel(users []authentication.User) exploreModel {
 
 	return exploreModel{
 		users:        users,
@@ -83,6 +84,7 @@ func (m exploreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
+			clearScreen()
 			return m, tea.Quit
 		}
 		// Update model
@@ -92,5 +94,13 @@ func (m exploreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 }
 
 func (m exploreModel) View() string {
-	return "Something is printed, innit?"
+	var style = lipgloss.NewStyle().
+		Bold(true).
+		Foreground(lipgloss.Color("#FAFAFA"))
+
+	output := ""
+	for _, user := range m.users {
+		output += fmt.Sprintf("%s - %s\n", user.UID, user.Email)
+	}
+	return style.Render(output)
 }
