@@ -4,7 +4,6 @@ import (
 	"context"
 	"errors"
 	"fmt"
-	"log"
 
 	"firebase.google.com/go/v4/auth"
 	"google.golang.org/api/iterator"
@@ -23,8 +22,12 @@ func GetAllUsers(client *auth.Client) ([]User, error) {
 	for {
 		_user, err := iter.Next()
 
+		if err == iterator.Done {
+			break
+		}
+
 		if err != nil {
-			log.Fatalf("%T\n", err)
+			break
 		}
 
 		user := User{
@@ -35,9 +38,6 @@ func GetAllUsers(client *auth.Client) ([]User, error) {
 
 		users = append(users, user)
 
-		if err == iterator.Done {
-			break
-		}
 	}
 
 	return users, nil

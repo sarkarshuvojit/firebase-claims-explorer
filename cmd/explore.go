@@ -1,6 +1,4 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-*/package cmd
+package cmd
 
 import (
 	"encoding/json"
@@ -8,10 +6,12 @@ import (
 	"os"
 
 	"firebase.google.com/go/v4/auth"
+	tea "github.com/charmbracelet/bubbletea"
 	"github.com/spf13/cobra"
 	"shuvojit.in/firebase-claims-explorer/authentication"
 )
 
+var globalClient *auth.Client
 var exploreCmd = &cobra.Command{
 	Use:   "explore",
 	Short: "Runs tui app to list users and view claims",
@@ -24,6 +24,7 @@ var exploreCmd = &cobra.Command{
 		}
 
 		client := authentication.GetAuthClient(configFile)
+		globalClient = client
 		launchTui(client)
 	},
 }
@@ -42,6 +43,12 @@ func launchTui(client *auth.Client) {
 
 	b, err := json.Marshal(users)
 	fmt.Println(string(b))
+
+	p := tea.NewProgram(createExploreModel())
+	if err := p.Start(); err != nil {
+		fmt.Printf("Some error occored. %v", err)
+		os.Exit(1)
+	}
 }
 
 type exploreModel struct {
@@ -52,8 +59,8 @@ type exploreModel struct {
 	filteredResults []authentication.User
 }
 
-func createExploreModel(client *auth.Client) exploreModel {
-	users, err := authentication.GetAllUsers(client)
+func createExploreModel() exploreModel {
+	users, err := authentication.GetAllUsers(globalClient)
 	if err != nil {
 		panic(err)
 	}
@@ -65,4 +72,25 @@ func createExploreModel(client *auth.Client) exploreModel {
 		searchQuery:     "",
 		filteredResults: []authentication.User{},
 	}
+}
+
+func (m exploreModel) Init() tea.Cmd {
+	return nil
+}
+
+func (m exploreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
+	switch msg := msg.(type) {
+	case tea.KeyMsg:
+		switch msg.String() {
+		case "ctrl+c", "q":
+			return m, tea.Quit
+		}
+		// Update model
+	}
+
+	return m, nil
+}
+
+func (m exploreModel) View() string {
+	return "Something is printed, innit?"
 }
