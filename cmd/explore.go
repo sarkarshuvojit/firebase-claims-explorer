@@ -10,6 +10,7 @@ import (
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
 	"shuvojit.in/firebase-claims-explorer/authentication"
+	"shuvojit.in/firebase-claims-explorer/components"
 )
 
 var globalClient *auth.Client
@@ -45,6 +46,7 @@ func launchTui(client *auth.Client) {
 
 	p := tea.NewProgram(createExploreModel(users))
 	if err := p.Start(); err != nil {
+		clearScreen()
 		fmt.Printf("Some error occored. %v", err)
 		os.Exit(1)
 	}
@@ -57,8 +59,9 @@ func clearScreen() {
 }
 
 type exploreModel struct {
-	users        []authentication.User
-	selectedUser authentication.User
+	users             []authentication.User
+	selectedUserIndex int
+	selectedUser      authentication.User
 
 	searchQuery     string
 	filteredResults []authentication.User
@@ -67,8 +70,8 @@ type exploreModel struct {
 func createExploreModel(users []authentication.User) exploreModel {
 
 	return exploreModel{
-		users:        users,
-		selectedUser: authentication.User{},
+		users:             users,
+		selectedUserIndex: 0,
 
 		searchQuery:     "",
 		filteredResults: []authentication.User{},
@@ -86,11 +89,30 @@ func (m exploreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "ctrl+c", "q":
 			clearScreen()
 			return m, tea.Quit
+		case "j", "down":
+			m.MoveCursorDown()
+			break
+		case "k", "up":
+			m.MoveCursorUp()
+			break
 		}
-		// Update model
 	}
 
 	return m, nil
+}
+
+func (m *exploreModel) MoveCursorDown() {
+	if m.selectedUserIndex == len(m.users)-1 {
+		return
+	}
+	m.selectedUserIndex += 1
+}
+
+func (m *exploreModel) MoveCursorUp() {
+	if m.selectedUserIndex == 0 {
+		return
+	}
+	m.selectedUserIndex -= 1
 }
 
 func (m exploreModel) View() string {
@@ -98,9 +120,6 @@ func (m exploreModel) View() string {
 		Bold(true).
 		Foreground(lipgloss.Color("#FAFAFA"))
 
-	output := ""
-	for _, user := range m.users {
-		output += fmt.Sprintf("%s - %s\n", user.UID, user.Email)
-	}
+	output := components.UserList(m.users, m.users[m.selectedUserIndex])
 	return style.Render(output)
 }
