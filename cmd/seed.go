@@ -32,7 +32,7 @@ var seedCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(seedCmd)
+	RootCmd.AddCommand(seedCmd)
 	seedCmd.Flags().IntVarP(&seedCount, "size", "s", 10, "Number of users to seed. Default is 10.")
 }
 

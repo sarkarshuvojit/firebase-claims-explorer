@@ -33,7 +33,7 @@ var exploreCmd = &cobra.Command{
 }
 
 func init() {
-	rootCmd.AddCommand(exploreCmd)
+	RootCmd.AddCommand(exploreCmd)
 }
 
 func launchTui(client *auth.Client) {

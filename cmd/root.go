@@ -10,14 +10,14 @@ import (
 	"github.com/spf13/cobra"
 )
 
-var rootCmd = &cobra.Command{
+var RootCmd = &cobra.Command{
 	Use:   "firebase-claims-exporer",
 	Short: "A tui application to manage claims in your firebase app",
 	Long:  `A tui application to manage claims in your firebase app`,
 }
 
 func Execute() {
-	err := rootCmd.Execute()
+	err := RootCmd.Execute()
 	if err != nil {
 		os.Exit(1)
 	}
@@ -25,12 +25,12 @@ func Execute() {
 
 func init() {
 	var configFilePtr string
-	rootCmd.PersistentFlags().StringVarP(
+	RootCmd.PersistentFlags().StringVarP(
 		&configFilePtr,
 		"config",
 		"c",
 		"",
 		"Pass config file from firebase admin",
 	)
-	rootCmd.MarkPersistentFlagRequired("config")
+	RootCmd.MarkPersistentFlagRequired("config")
 }
