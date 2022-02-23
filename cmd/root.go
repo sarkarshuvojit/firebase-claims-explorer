@@ -11,9 +11,10 @@ import (
 )
 
 var RootCmd = &cobra.Command{
-	Use:   "firebase-claims-exporer",
-	Short: "A tui application to manage claims in your firebase app",
-	Long:  `A tui application to manage claims in your firebase app`,
+	Use:     "firebase-claims-exporer",
+	Aliases: []string{"fce"},
+	Short:   "A tui application to manage claims in your firebase app",
+	Long:    `A tui application to manage claims in your firebase app`,
 }
 
 func Execute() {
