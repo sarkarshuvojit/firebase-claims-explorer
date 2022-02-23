@@ -1,6 +1,7 @@
 package cmd
 
 import (
+	"encoding/json"
 	"fmt"
 	"os"
 	"os/exec"
@@ -61,21 +62,31 @@ func clearScreen() {
 type ScreenRender func(m exploreModel) string
 
 type Screen struct {
+	Name   string
 	Render ScreenRender
 }
 
 var (
-	LIST_SCREEN = Screen{Render: func(m exploreModel) string {
-		var style = lipgloss.NewStyle().
-			Bold(true).
-			Foreground(lipgloss.Color("#FAFAFA"))
+	LIST_SCREEN = Screen{
+		Name: "LIST_SCREEN",
+		Render: func(m exploreModel) string {
+			var style = lipgloss.NewStyle().
+				Bold(true).
+				Foreground(lipgloss.Color("#FAFAFA"))
 
-		output := components.UserList(m.users, m.users[m.selectedUserIndex])
-		return style.Render(output)
-	}}
-	DETAIL_SCREEN = Screen{Render: func(m exploreModel) string {
-		return "This is detail screen"
-	}}
+			output := components.UserList(m.users, m.users[m.selectedUserIndex])
+			return style.Render(output)
+		}}
+	DETAIL_SCREEN = Screen{
+		Name: "DETAIL_SCREEN",
+		Render: func(m exploreModel) string {
+			selectedUser := m.users[m.selectedUserIndex]
+			jsonString, err := json.Marshal(selectedUser.Claims)
+			if err != nil {
+				panic(err)
+			}
+			return fmt.Sprintf("Viewing Claims for: %s", jsonString)
+		}}
 )
 
 type exploreModel struct {
@@ -110,8 +121,13 @@ func (m exploreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 	case tea.KeyMsg:
 		switch msg.String() {
 		case "ctrl+c", "q":
-			clearScreen()
-			return m, tea.Quit
+			if m.selectedScreen.Name == LIST_SCREEN.Name {
+				clearScreen()
+				return m, tea.Quit
+			} else {
+				m.selectedScreen = LIST_SCREEN
+				break
+			}
 		case "j", "down":
 			m.MoveCursorDown()
 			break
