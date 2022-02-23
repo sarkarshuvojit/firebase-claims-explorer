@@ -58,10 +58,31 @@ func clearScreen() {
 	clearcmd.Run()
 }
 
+type ScreenRender func(m exploreModel) string
+
+type Screen struct {
+	Render ScreenRender
+}
+
+var (
+	LIST_SCREEN = Screen{Render: func(m exploreModel) string {
+		var style = lipgloss.NewStyle().
+			Bold(true).
+			Foreground(lipgloss.Color("#FAFAFA"))
+
+		output := components.UserList(m.users, m.users[m.selectedUserIndex])
+		return style.Render(output)
+	}}
+	DETAIL_SCREEN = Screen{Render: func(m exploreModel) string {
+		return "This is detail screen"
+	}}
+)
+
 type exploreModel struct {
+	selectedScreen Screen
+
 	users             []authentication.User
 	selectedUserIndex int
-	selectedUser      authentication.User
 
 	searchQuery     string
 	filteredResults []authentication.User
@@ -70,6 +91,8 @@ type exploreModel struct {
 func createExploreModel(users []authentication.User) exploreModel {
 
 	return exploreModel{
+		selectedScreen: LIST_SCREEN,
+
 		users:             users,
 		selectedUserIndex: 0,
 
@@ -95,10 +118,17 @@ func (m exploreModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		case "k", "up":
 			m.MoveCursorUp()
 			break
+		case "enter":
+			m.ViewDetail()
+			break
 		}
 	}
 
 	return m, nil
+}
+
+func (m *exploreModel) ViewDetail() {
+	m.selectedScreen = DETAIL_SCREEN
 }
 
 func (m *exploreModel) MoveCursorDown() {
@@ -116,10 +146,6 @@ func (m *exploreModel) MoveCursorUp() {
 }
 
 func (m exploreModel) View() string {
-	var style = lipgloss.NewStyle().
-		Bold(true).
-		Foreground(lipgloss.Color("#FAFAFA"))
-
-	output := components.UserList(m.users, m.users[m.selectedUserIndex])
-	return style.Render(output)
+	output := m.selectedScreen.Render(m)
+	return output
 }
