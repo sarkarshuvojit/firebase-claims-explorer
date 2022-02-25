@@ -1,6 +1,6 @@
 # firebase-claims-explorer
 
-Is a tui tool which can be used to explore production claims for a firebase authentication. A common use case I've notices is that people have to use amazon provided cli to manually check what claims are applied to a specific user at a point of time.
+Is a tui tool which can be used to explore production claims for a firebase authentication. A common use case I've notices is that people have to use firebase provided cli to manually check what claims are applied to a specific user at a point of time.
 
 Instead of a cli, this aims to be a easy to use TUI to explore a firebase auth database with the intent to view the custom claims for a user.
 
