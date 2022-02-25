@@ -74,8 +74,3 @@ firebase-claims-exporer seed [flags]
 ## Features to implement
 
 - Cache user database locally for quick searching 
-
-## Resources/Notes
-
-- (bubbleboxer)[https://github.com/treilik/bubbleboxer]: Can be used to create layout using bubbletea
-
