@@ -74,3 +74,4 @@ firebase-claims-exporer seed [flags]
 ## Features to implement
 
 - Cache user database locally for quick searching 
+- Pagination
