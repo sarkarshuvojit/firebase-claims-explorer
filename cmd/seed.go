@@ -1,14 +1,15 @@
 /*
 Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
 */
 package cmd
 
 import (
+	"context"
 	"fmt"
 	"os"
 
 	"firebase.google.com/go/v4/auth"
+	"github.com/go-faker/faker/v4"
 	"github.com/spf13/cobra"
 	"shuvojit.in/firebase-claims-explorer/authentication"
 )
@@ -36,17 +37,37 @@ func init() {
 	seedCmd.Flags().IntVarP(&seedCount, "size", "s", 10, "Number of users to seed. Default is 10.")
 }
 
+func resetUserSet(client *auth.Client) {
+	savedUsers, _ := authentication.GetAllUsers(client)
+
+	var toBeDeleted []string
+
+	for _, u := range savedUsers {
+		toBeDeleted = append(toBeDeleted, u.UID)
+	}
+	client.DeleteUsers(context.Background(), toBeDeleted)
+}
+
 func seedUsers(n int, client *auth.Client) {
 	fmt.Printf("Seeding %d users\n", n)
 	var users []*auth.UserToImport
 
 	for i := 0; i < n; i++ {
+		email := faker.Email()
 		users = append(users, (&auth.UserToImport{}).
-			UID(fmt.Sprintf("UID%d", i)).
-			DisplayName(fmt.Sprintf("Name%d", i)).
-			CustomClaims(map[string]interface{}{"index": i}),
+			Email(email).
+			UID(faker.UUIDHyphenated()).
+			DisplayName(fmt.Sprintf("%s %s", faker.FirstName(), faker.LastName())).
+			CustomClaims(map[string]interface{}{
+				"email":    email,
+				"birthday": faker.Date(),
+				"tz":       faker.Timezone(),
+				"currency": faker.Currency(),
+				"phone":    faker.Phonenumber(),
+			}),
 		)
 	}
 
+	resetUserSet(client)
 	authentication.InsertUsers(client, users)
 }

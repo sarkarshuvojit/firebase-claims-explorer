@@ -250,12 +250,8 @@ var (
 	LIST_SCREEN = Screen{
 		Name: "LIST_SCREEN",
 		Render: func(m exploreModel) string {
-			var style = lipgloss.NewStyle().
-				Bold(true).
-				Foreground(lipgloss.Color("#FAFAFA"))
-
 			output := components.UserList(m.users, m.users[m.selectedUserIndex])
-			return style.Render(output)
+			return output
 		}}
 	DETAIL_SCREEN = Screen{
 		Name: "DETAIL_SCREEN",
@@ -266,6 +262,7 @@ var (
 				panic(err)
 			}
 			m.textArea.SetValue(string(jsonString))
+			m.textArea.SetHeight(lipgloss.Height(m.textArea.Value()))
 			style := lipgloss.NewStyle().
 				MarginLeft(20)
 			return style.Render(m.textArea.View())

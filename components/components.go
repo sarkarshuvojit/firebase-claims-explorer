@@ -1,19 +1,31 @@
 package components
 
 import (
-	"fmt"
-
+	"github.com/charmbracelet/lipgloss"
 	"shuvojit.in/firebase-claims-explorer/authentication"
 )
 
+var (
+	selectedStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
+			Background(lipgloss.AdaptiveColor{Light: "#D9DCCF", Dark: "#353533"}).
+			Render
+	defaultStyle = lipgloss.NewStyle().
+			Foreground(lipgloss.AdaptiveColor{Light: "#343433", Dark: "#C1C6B2"}).
+			Render
+)
+
 func UserList(users []authentication.User, selectedUser authentication.User) string {
-	output := ""
+	var output []string
 	for _, user := range users {
 		if user.UID == selectedUser.UID {
-			output += fmt.Sprintf("> %s - %s\n", user.UID, user.Email)
+			output = append(output, selectedStyle(user.UID))
 		} else {
-			output += fmt.Sprintf("%s - %s\n", user.UID, user.Email)
+			output = append(output, defaultStyle(user.UID))
 		}
 	}
-	return output
+	return lipgloss.JoinVertical(
+		lipgloss.Right,
+		output...,
+	)
 }
