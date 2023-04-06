@@ -7,6 +7,7 @@ import (
 	"os/exec"
 
 	"firebase.google.com/go/v4/auth"
+	"github.com/charmbracelet/bubbles/textarea"
 	tea "github.com/charmbracelet/bubbletea"
 	"github.com/charmbracelet/lipgloss"
 	"github.com/spf13/cobra"
@@ -81,11 +82,12 @@ var (
 		Name: "DETAIL_SCREEN",
 		Render: func(m exploreModel) string {
 			selectedUser := m.users[m.selectedUserIndex]
-			jsonString, err := json.Marshal(selectedUser.Claims)
+			jsonString, err := json.MarshalIndent(selectedUser.Claims, "", "  ")
 			if err != nil {
 				panic(err)
 			}
-			return fmt.Sprintf("Viewing Claims for: %s", jsonString)
+			m.textArea.SetValue(string(jsonString))
+			return m.textArea.View()
 		}}
 )
 
@@ -97,6 +99,8 @@ type exploreModel struct {
 
 	searchQuery     string
 	filteredResults []authentication.User
+
+	textArea textarea.Model
 }
 
 func createExploreModel(users []authentication.User) exploreModel {
@@ -109,6 +113,8 @@ func createExploreModel(users []authentication.User) exploreModel {
 
 		searchQuery:     "",
 		filteredResults: []authentication.User{},
+
+		textArea: textarea.New(),
 	}
 }
 
