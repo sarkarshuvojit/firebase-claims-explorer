@@ -176,12 +176,12 @@ var (
 	fishCakeStyle = statusNugget.Copy().Background(lipgloss.Color("#6124DF"))
 
 	borderStyle = lipgloss.NewStyle().
-			Border(lipgloss.NormalBorder()).
+			Border(lipgloss.DoubleBorder()).
 			Render
 
 	// Page.
 
-	docStyle = lipgloss.NewStyle() //.Padding(1, 2, 1, 2)
+	docStyle = lipgloss.NewStyle().Align(lipgloss.Center)
 )
 
 const (
@@ -342,15 +342,17 @@ func (m *exploreModel) MoveCursorUp() {
 }
 
 func withTitle(title string, body string) string {
-	return borderStyle(lipgloss.JoinVertical(
+	return lipgloss.JoinVertical(
 		lipgloss.Center,
 		listHeader(title),
 		body,
-	))
+	)
 }
 
 func (m exploreModel) View() string {
-	physicalWidth, _, _ := term.GetSize(int(os.Stdout.Fd()))
+	physicalWidth, physicalHeight, _ := term.GetSize(int(os.Stdout.Fd()))
+	w := lipgloss.Width
+	h := lipgloss.Height
 	doc := strings.Builder{}
 	{
 		doc.WriteString(
@@ -362,23 +364,23 @@ func (m exploreModel) View() string {
 		doc.WriteString("\n\n")
 	}
 	{
-		w := lipgloss.Width
 
 		statusKey := statusStyle.Render("STATUS")
-		encoding := encodingStyle.Render("UTF-8")
-		fishCake := fishCakeStyle.Render("🍥 Fish Cake")
 		statusVal := statusText.Copy().
-			Width(width - w(statusKey) - w(encoding) - w(fishCake)).
-			Render("Ravishing")
+			Width(width - w(statusKey)).
+			Render("⏶/k: up | ⏷/j: down | q: quit")
 
 		bar := lipgloss.JoinHorizontal(lipgloss.Top,
 			statusKey,
 			statusVal,
-			encoding,
-			fishCake,
 		)
 
-		doc.WriteString(statusBarStyle.Width(width).Render(bar))
+		diff := physicalHeight - h(doc.String())
+		marginTop := lipgloss.NewStyle().
+			MarginTop(diff).
+			Render
+
+		doc.WriteString(marginTop(statusBarStyle.Width(physicalWidth).Render(bar)))
 
 	}
 
