@@ -4,6 +4,8 @@ Is a tui tool which can be used to explore production claims for a firebase auth
 
 Instead of a cli, this aims to be a easy to use TUI to explore a firebase auth database with the intent to view the custom claims for a user.
 
+[![asciicast](https://asciinema.org/a/605779.svg)](https://asciinema.org/a/605779)
+
 ## firebase-claims-exporer
 
 A tui application to manage claims in your firebase app
